@@ -34,10 +34,6 @@ jobs:
         with:
           node-version: '18'
       
-      - name: Run tests
-        run: npm test -- --json --outputFile=test-results.json
-        continue-on-error: true
-      
       - name: Build dynamic Zekt payload with PowerShell
         id: build-payload
         shell: pwsh
@@ -48,10 +44,15 @@ jobs:
               providerAuditId            = "${{ inputs.providerAuditId }}"
               providerAuditStatus        = "${{ inputs.providerAuditStatus }}"
           }
-
-          $aduitJsonPayload = $payload | ConvertTo-Json -Depth 10
-          echo "zekt_payload=$aduitJsonPayload" >> $env:GITHUB_OUTPUT
-          Write-Host "Constructed Zekt Payload: $aduitJsonPayload"
+          $auditJsonPayload = $payload | ConvertTo-Json -Depth 10 -Compress
+          # Use heredoc syntax for multiline output
+          $delimiter = "EOF_$(New-Guid)"
+          @"
+          payload<<$delimiter
+          $auditJsonPayload
+          $delimiter
+          "@ >> $env:GITHUB_OUTPUT
+          Write-Host ("Constructed Zekt Payload: " + $auditJsonPayload)
 
       - name: Build step ID with PowerShell
         id: build-step-id
