@@ -1,0 +1,94 @@
+name: zekt-provide-infra-event-msg
+
+on:
+  workflow_dispatch:
+    inputs:
+      providerServiceName:
+        description: 'Provider Service Name'              # <-- Could be any string that makes sense to scenario, in this case - 'InfraProvider X'  
+        required: true
+        type: string
+      providerServiceDescription:
+        description: 'Provider Service Description'       # <-- Could be any string that makes sense to scenario, in this case - 'Web Server Deployed - take action'
+        required: true
+        type: string
+      providerInfraId:
+        description: 'Provider Infra ID'                  # <-- Could be any string that makes sense to scenario, in this case - an imaginary infra ticket ID (e.g 334433359922)
+        required: true
+        type: string
+      providerInfraStatus:
+        description: 'Provider Infra Status'              # <-- Could be: 'Deployed' / or arbitrary string that makes sense to scenario
+        required: true
+        type: string
+      providerInfraUrl:
+        description: 'Provider Infra URL'                 # <-- Could be any string that makes sense to scenario, in this case - a URL to the deployed infra resource
+        required: true
+        type: string
+      providerInfraResourceId:
+        description: 'Provider Infra Resource ID'         # <-- Could be any string that makes sense to scenario, in this case - an ID of the deployed infra resource
+        required: true
+        type: string
+        
+
+jobs:
+  infra-event:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Run tests
+        run: npm test -- --json --outputFile=test-results.json
+        continue-on-error: true
+      
+      - name: Build dynamic Zekt payload with PowerShell
+        id: build-payload
+        shell: pwsh
+        run: |
+          $payload = @{
+              providerServiceName        = "${{ inputs.providerServiceName }}"
+              providerServiceDescription = "${{ inputs.providerServiceDescription }}"
+              providerInfraId            = "${{ inputs.providerInfraId }}"
+              providerInfraStatus        = "${{ inputs.providerInfraStatus }}"
+              providerInfraUrl           = "${{ inputs.providerInfraUrl }}"
+              providerInfraResourceId    = "${{ inputs.providerInfraResourceId }}"
+          }
+
+          $infraJsonPayload = $payload | ConvertTo-Json -Depth 10
+          echo "zekt_payload=$infraJsonPayload" >> $env:GITHUB_OUTPUT
+          Write-Host "Constructed Zekt Payload: $infraJsonPayload"
+
+      - name: Build step ID with PowerShell
+        id: build-step-id
+        shell: pwsh
+        run: |
+
+          # Create unique step ID combining job info
+          $stepId = "job-${{ github.run_id }}-step-${{ github.job }}-$([DateTime]::UtcNow.Ticks % 10000)"
+          echo "step_id=$stepId" >> $env:GITHUB_OUTPUT
+          Write-Host "Generated Step ID: $stepId"
+      
+      - name: Send results to Zekt
+        uses: zekt-dev-org/zekt-action@v1.0.0
+        with:
+          zekt_run_id: ${{ github.run_id }}
+          zekt_step_id: ${{ steps.build-step-id.outputs.step_id }}
+          zekt_payload: ${{ steps.build-payload.outputs.zekt_payload }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Log Zekt response
+        if: always()
+        shell: pwsh
+        run: |
+          Write-Host "Zekt Action Results:"
+          Write-Host "  Success: ${{ steps.send-zekt.outputs.success }}"
+          Write-Host "  Run ID: ${{ steps.send-zekt.outputs.run_id }}"
+          Write-Host "  Step ID: ${{ steps.send-zekt.outputs.step_id }}"
+
+

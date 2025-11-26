@@ -1,0 +1,132 @@
+name: zekt-provide-audit-event-msg
+
+on:
+  workflow_dispatch:
+    inputs:
+      providerServiceName:
+        description: 'Provider Service Name'              # <-- Could be any string that makes sense to scenario, in this case - 'Customer X'  
+        required: true
+        type: string
+      providerServiceDescription:
+        description: 'Provider Service Description'       # <-- Could be any string that makes sense to scenario, in this case - 'Tax transation failed - request auditing'
+        required: true
+        type: string
+      providerAuditId:
+        description: 'Provider Audit ID'                  # <-- Could be any string that makes sense to scenario, in this case - an imaginary audit ticket ID (e.g 334433359922)
+        required: true
+        type: string
+      providerAuditStatus:
+        description: 'Provider Audit Status'              # <-- Could be: 'Request'/'Close' / or arbitrary string that makes sense to scenario
+        required: true
+        type: string
+
+jobs:
+  audit-event:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Run tests
+        run: npm test -- --json --outputFile=test-results.json
+        continue-on-error: true
+      
+      - name: Build dynamic Zekt payload with PowerShell
+        id: build-payload
+        shell: pwsh
+        run: |
+          $payload = @{
+              providerServiceName        = "${{ inputs.providerServiceName }}"
+              providerServiceDescription = "${{ inputs.providerServiceDescription }}"
+              providerAuditId            = "${{ inputs.providerAuditId }}"
+              providerAuditStatus        = "${{ inputs.providerAuditStatus }}"
+          }
+
+          $aduitJsonPayload = $payload | ConvertTo-Json -Depth 10
+          echo "zekt_payload=$aduitJsonPayload" >> $env:GITHUB_OUTPUT
+          Write-Host "Constructed Zekt Payload: $aduitJsonPayload"
+
+      - name: Build step ID with PowerShell
+        id: build-step-id
+        shell: pwsh
+        run: |
+
+          # Create unique step ID combining job info
+          $stepId = "job-${{ github.run_id }}-step-${{ github.job }}-$([DateTime]::UtcNow.Ticks % 10000)"
+          echo "step_id=$stepId" >> $env:GITHUB_OUTPUT
+          Write-Host "Generated Step ID: $stepId"
+      
+      - name: Send results to Zekt
+        uses: zekt-dev-org/zekt-action@v1.0.0
+        with:
+          zekt_run_id: ${{ github.run_id }}
+          zekt_step_id: ${{ steps.build-step-id.outputs.step_id }}
+          zekt_payload: ${{ steps.build-payload.outputs.zekt_payload }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Log Zekt response
+        if: always()
+        shell: pwsh
+        run: |
+          Write-Host "Zekt Action Results:"
+          Write-Host "  Success: ${{ steps.send-zekt.outputs.success }}"
+          Write-Host "  Run ID: ${{ steps.send-zekt.outputs.run_id }}"
+          Write-Host "  Step ID: ${{ steps.send-zekt.outputs.step_id }}"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      - name: Process audit event
+        run: |
+          echo "Provider Service Name: ${{ inputs.providerServiceName }}"
+          echo "Provider Service Description: ${{ inputs.providerServiceDescription }}"
+
+
+        #   - uses: zekt-dev-org/zekt-action@v1.0.0
+
+
+
+
+
+
+
+
+
+
+
+
+
