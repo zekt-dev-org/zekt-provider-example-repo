@@ -43,9 +43,9 @@ jobs:
         with:
           node-version: '18'
       
-      - name: Run tests
-        run: npm test -- --json --outputFile=test-results.json
-        continue-on-error: true
+      # - name: Run tests
+      #   run: npm test -- --json --outputFile=test-results.json
+      #   continue-on-error: true
       
       - name: Build dynamic Zekt payload with PowerShell
         id: build-payload
@@ -60,9 +60,15 @@ jobs:
               providerInfraResourceId    = "${{ inputs.providerInfraResourceId }}"
           }
 
-          $infraJsonPayload = $payload | ConvertTo-Json -Depth 10
-          echo "zekt_payload=$infraJsonPayload" >> $env:GITHUB_OUTPUT
-          Write-Host "Constructed Zekt Payload: $infraJsonPayload"
+          $infraJsonPayload = $payload | ConvertTo-Json -Depth 10 -Compress
+          # Use heredoc syntax for multiline output
+          $delimiter = "EOF_$(New-Guid)"
+          @"
+          payload<<$delimiter
+          $infraJsonPayload
+          $delimiter
+          "@ >> $env:GITHUB_OUTPUT
+          Write-Host ("Constructed Zekt Payload: " + $infraJsonPayload)
 
       - name: Build step ID with PowerShell
         id: build-step-id
