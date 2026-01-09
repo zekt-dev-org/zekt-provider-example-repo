@@ -1,0 +1,83 @@
+name: Zekt Provider Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      RequestType:
+        description: 'type of deployment request'
+        required: true
+        default: ''
+        type: string
+
+jobs:
+  send-to-zekt:
+    name: Send Event to Zekt
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # Required for OIDC authentication
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build JSON Payload
+        id: build-payload
+        shell: pwsh
+        run: |
+          # Collect all input parameters into a structured JSON object
+          Write-Host "Pre-collecting input parameters..."
+          
+          # Convert string boolean to PowerShell boolean
+          $isPublicBool = "${{ inputs.isPublic }}"
+          Write-Host ("CorrelationId: " + "${{ github.run_id }}")
+
+          $payload = @{
+              resourceType = "${{ inputs.RequestType }}"
+              timestamp = (Get-Date -Format "o")
+              workflowRunId = "${{ github.run_id }}"
+              repository = "${{ github.repository }}"
+              sender = "${{ github.actor }}"
+          }
+          
+          Write-Host "Post-collecting input parameters..."
+          
+          # Convert to JSON string
+          $jsonPayload = $payload | ConvertTo-Json -Compress
+          
+          # Output for next step
+          Write-Host "Payload built:"
+          Write-Host $jsonPayload
+          
+          # Set as output (escape for GitHub Actions)
+          "payload=$jsonPayload" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          
+      - name: Display Payload (Debug)
+        run: |
+          echo "🔍 Payload to be sent to Zekt:"
+          echo '${{ steps.build-payload.outputs.payload }}'
+
+      - name: Send Event to Zekt
+        id: zekt
+        uses: zekt-dev-org/zekt-action@v2.0.1
+        with:
+          event-type: 'zekt-test-durable-event'
+          payload: ${{ steps.build-payload.outputs.payload }}
+
+      - name: Confirmation
+        run: |
+          echo "✅ Event sent to Zekt successfully!"
+          echo ""
+          echo "📋 Summary:"
+          echo "  - Event Type: zekt-test-durable-event"
+          echo "  - Event ID: ${{ steps.zekt.outputs.event-id }}"
+          echo "  - Status: ${{ steps.zekt.outputs.status }}"
+          echo "  - Consumers Notified: ${{ steps.zekt.outputs.consumers-notified }}"
+          echo "  - Workflow Run: ${{ github.run_id }}"
+          echo "  - Repository: ${{ github.repository }}"
+          echo "  - Triggered by: ${{ github.actor }}"
+          echo ""
+          echo "🔗 Next steps:"
+          echo "  1. Check Zekt webhook-events container in Cosmos DB"
+          echo "  2. Verify event was received and logged"
+          echo "  3. Check if consumers received the forwarded event"
