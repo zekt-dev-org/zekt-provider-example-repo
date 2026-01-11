@@ -1,4 +1,4 @@
-name: Alternate Event Type test
+name: Shielded provider scenario from zekt-dev-org
 
 on:
   workflow_dispatch:

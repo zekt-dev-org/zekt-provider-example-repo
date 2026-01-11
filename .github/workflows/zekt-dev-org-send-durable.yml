@@ -1,4 +1,4 @@
-name: Zekt Provider Test
+name: Provider zekt-dev-org send durable event
 
 on:
   workflow_dispatch:
