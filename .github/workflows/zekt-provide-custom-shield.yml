@@ -55,7 +55,7 @@ jobs:
         with:
           event-type: 'zekt-custom-shield-provider-event'
           payload: ${{ steps.build-payload.outputs.payload }}
-          shield: false
+          shield: true
 
       - name: Confirmation
         run: |
