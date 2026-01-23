@@ -54,7 +54,7 @@ jobs:
         uses: zekt-dev-org/zekt-action@v2.0.1
         with:
           event-type: 'zekt-custom-shield-provider-event'
-          payload: ${{ github.event.inputs.sensitive_data }}
+          payload: ${{ steps.build-payload.outputs.payload }}
 
       - name: Confirmation
         run: |
@@ -70,7 +70,7 @@ jobs:
           echo "  - Triggered by: ${{ github.actor }}"
           echo ""
           echo "🔗 Next steps:"
-          echo "  1. Check Zekt webhook-events container in Cosmos DB"
-          echo "  2. Verify event was received and logged"
+          echo "  1. Check Zekt payload is encrypted"
+          echo "  2. Verify event was received and decrypted"
           echo "  3. Check if consumers received the forwarded event"
           echo "  4. Check that consumer workflow triggers on custom event type"
