@@ -10,6 +10,7 @@ on:
         default: 'ghp_1234567890abcdefghijklmnopqrstuvwxyz12'
 
 jobs:
+
   shield-send-to-zekt:
     name: Send Sensetive Event & message to Zekt
     runs-on: ubuntu-latest
@@ -18,6 +19,33 @@ jobs:
       contents: read
     
     steps:
+      - name: Build JSON Payload
+        id: build-payload
+        shell: pwsh
+        run: |
+          # Collect all input parameters into a structured JSON object
+          Write-Host "Building arbitrary JSON structure"
+
+          $payload = @{
+              timestamp = (Get-Date -Format "o")
+              workflowRunId = "${{ github.run_id }}"
+              repository = "${{ github.repository }}"
+              sender = "${{ github.actor }}"
+              sensitive_data = "${{ github.
+          }
+          
+          Write-Host "Post-collecting input parameters..."
+          
+          # Convert to JSON string
+          $jsonPayload = $payload | ConvertTo-Json -Compress
+          
+          # Output for next step
+          Write-Host "Payload built:"
+          Write-Host $jsonPayload
+          
+          # Set as output (escape for GitHub Actions)
+          "payload=$jsonPayload" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+      
       - name: Checkout repository
         uses: actions/checkout@v4
 
