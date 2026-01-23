@@ -31,7 +31,7 @@ jobs:
               workflowRunId = "${{ github.run_id }}"
               repository = "${{ github.repository }}"
               sender = "${{ github.actor }}"
-              sensitive_data = "${{ github.
+              sensitive_data = "${{ inputs.sensitive_data }}"
           }
           
           Write-Host "Post-collecting input parameters..."
