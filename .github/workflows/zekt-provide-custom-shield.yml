@@ -51,7 +51,7 @@ jobs:
 
       - name: Send Event to Zekt
         id: zekt
-        uses: zekt-dev-org/zekt-action@v2.0.2
+        uses: zekt-dev-org/zekt-action@v2.0.3
         with:
           event-type: 'zekt-custom-shield-provider-event'
           payload: ${{ steps.build-payload.outputs.payload }}
