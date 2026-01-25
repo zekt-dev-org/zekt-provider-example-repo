@@ -54,7 +54,7 @@ jobs:
         id: zekt
         uses: zekt-dev-org/zekt-action@v2.1.0
         with:
-          event-type: 'zekt-custom-shield-provider-event'
+          event-type: 'zekt-custom-redaction-provider-event'
           payload: ${{ steps.build-payload.outputs.payload }}
           shield: false
 
@@ -63,7 +63,7 @@ jobs:
           echo "✅ Event sent to Zekt successfully!"
           echo ""
           echo "📋 Summary:"
-          echo "  - Event Type: zekt-custom-shield-provider-event"
+          echo "  - Event Type: zekt-custom-redaction-provider-event"
           echo "  - Event ID: ${{ steps.zekt.outputs.event-id }}"
           echo "  - Status: ${{ steps.zekt.outputs.status }}"
           echo "  - Consumers Notified: ${{ steps.zekt.outputs.consumers-notified }}"
@@ -72,7 +72,7 @@ jobs:
           echo "  - Triggered by: ${{ github.actor }}"
           echo ""
           echo "🔗 Next steps:"
-          echo "  1. Check Zekt payload is encrypted"
+          echo "  1. Check Zekt payload is redacted"
           echo "  2. Verify event was received and decrypted"
           echo "  3. Check if consumers received the forwarded event"
           echo "  4. Check that consumer workflow triggers on custom event type"
