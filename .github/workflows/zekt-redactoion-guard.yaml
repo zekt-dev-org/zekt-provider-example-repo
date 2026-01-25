@@ -1,19 +1,19 @@
 # .github/workflows/test-shield-encryption.yml
-name: Test Shield Encryption
+name: Test Redaction Guard
 
 on:
   workflow_dispatch:
     inputs:
       sensitive_data:
-        description: 'Test sensitive data to encrypt'
+        description: 'Sending fake github token / key - redaction guard should redact this'
         required: true
-        default: 'sensitive information to be sent securely but not redacted'
+        default: 'ghp_1234567890abcdefghijklmnopqrstuvwxyz12'
         
 
 jobs:
 
   shield-send-to-zekt:
-    name: Send Sensetive Event & message to Zekt
+    name: Send Sensitive (Redacted) Event & message payload to Zekt
     runs-on: ubuntu-latest
     permissions:
       id-token: write   # Required for OIDC authentication
