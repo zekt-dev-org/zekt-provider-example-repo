@@ -53,15 +53,8 @@ jobs:
           Write-Host ("CorrelationId: " + "${{ github.run_id }}")
 
           $payload = @{
-              resourceType = "${{ inputs.RequestType }}"
-              department = "${{ inputs.Department }}"
-              size = "${{ inputs.Size }}"
-              isPublic = $isPublicBool
-              costDistributionId = "${{ inputs.costDistributionId }}"
-              timestamp = (Get-Date -Format "o")
-              workflowRunId = "${{ github.run_id }}"
-              repository = "${{ github.repository }}"
-              sender = "${{ github.actor }}"
+              inputProperty1 = "${{ inputs.inputProperty1 }}"
+              inputProperty2 = "${{ inputs.inputProperty2 }}"
           }
           
           Write-Host "Post-collecting input parameters..."
