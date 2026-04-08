@@ -6,27 +6,12 @@ on:
       RequestType:
         description: 'type of deployment request'
         required: true
-        default: ''
+        default: 'defaultRequestType-Zekt'
         type: string
       Department:
         description: 'department name requesting deployment'
         required: true
-        default: 'finance'
-        type: string
-      Size:
-        description: 't-shirt size of deployment'
-        required: false
-        default: 'small'
-        type: string
-      isPublic:
-        description: 'is exposed to internet'
-        required: true
-        default: false
-        type: boolean
-      costDistributionId:
-        description: 'cost distribution identifier'
-        required: true
-        default: ''
+        default: 'ZektFinance'
         type: string
 
 jobs:
@@ -53,8 +38,8 @@ jobs:
           Write-Host ("CorrelationId: " + "${{ github.run_id }}")
 
           $payload = @{
-              inputProperty1 = "${{ inputs.inputProperty1 }}"
-              inputProperty2 = "${{ inputs.inputProperty2 }}"
+              department = "${{ inputs.Department }}"
+              requestType = "${{ inputs.RequestType }}"
           }
           
           Write-Host "Post-collecting input parameters..."

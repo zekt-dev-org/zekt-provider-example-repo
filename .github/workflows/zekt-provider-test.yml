@@ -6,12 +6,12 @@ on:
       RequestType:
         description: 'type of deployment request'
         required: true
-        default: ''
+        default: 'zektPreBakedType'
         type: string
       Department:
         description: 'department name requesting deployment'
         required: true
-        default: 'finance'
+        default: 'zekFinance'
         type: string
       Size:
         description: 't-shirt size of deployment'
@@ -26,7 +26,7 @@ on:
       costDistributionId:
         description: 'cost distribution identifier'
         required: true
-        default: ''
+        default: 'zekt03032032'
         type: string
 
 jobs:
@@ -53,7 +53,7 @@ jobs:
           Write-Host ("CorrelationId: " + "${{ github.run_id }}")
 
           $payload = @{
-              resourceType = "${{ inputs.RequestType }}"
+              requestType = "${{ inputs.RequestType }}"
               department = "${{ inputs.Department }}"
               size = "${{ inputs.Size }}"
               isPublic = $isPublicBool
