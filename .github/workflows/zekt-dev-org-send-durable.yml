@@ -6,7 +6,7 @@ on:
       RequestType:
         description: 'type of deployment request'
         required: true
-        default: ''
+        default: 'someZektDurableEventMessage'
         type: string
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
           Write-Host ("CorrelationId: " + "${{ github.run_id }}")
 
           $payload = @{
-              resourceType = "${{ inputs.RequestType }}"
+              requestType = "${{ inputs.RequestType }}"
               timestamp = (Get-Date -Format "o")
               workflowRunId = "${{ github.run_id }}"
               repository = "${{ github.repository }}"
