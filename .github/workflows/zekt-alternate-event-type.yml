@@ -53,8 +53,8 @@ jobs:
           Write-Host ("CorrelationId: " + "${{ github.run_id }}")
 
           $payload = @{
-              inputProperty1 = "${{ inputs.inputProperty1 }}"
-              inputProperty2 = "${{ inputs.inputProperty2 }}"
+              requestType = "${{ inputs.RequestType }}"
+              department = "${{ inputs.Department }}"
           }
           
           Write-Host "Post-collecting input parameters..."
