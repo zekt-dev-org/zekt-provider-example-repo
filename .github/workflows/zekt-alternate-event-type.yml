@@ -31,20 +31,12 @@ jobs:
         shell: pwsh
         run: |
           # Collect all input parameters into a structured JSON object
-          Write-Host "Pre-collecting input parameters..."
-          
-          # Convert string boolean to PowerShell boolean
-          $isPublicBool = "${{ inputs.isPublic }}"
+          Write-Host "Pre-collecting input parameters..."          
           Write-Host ("CorrelationId: " + "${{ github.run_id }}")
 
           $payload = @{
-<<<<<<< HEAD
-              requestType = "${{ inputs.RequestType }}"
-              department = "${{ inputs.Department }}"
-=======
               department = "${{ inputs.Department }}"
               requestType = "${{ inputs.RequestType }}"
->>>>>>> 4db8e4c9768f768de6791004b799653cb51220d7
           }
           
           Write-Host "Post-collecting input parameters..."
