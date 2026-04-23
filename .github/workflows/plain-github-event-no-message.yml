@@ -1,0 +1,69 @@
+name: GitHub event and no message
+
+on:
+  workflow_dispatch:
+    inputs:
+      RequestType:
+        description: 'type of deployment request'
+        required: true
+        default: 'defaultRequestType-GitHubEventNoMessage'
+        type: string
+      Department:
+        description: 'department name requesting deployment'
+        required: true
+        default: 'Simulate input but no zekt-action'
+        type: string
+
+jobs:
+  generate-github-event:
+    name: Generate GitHub Event
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # Required for OIDC authentication
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+    #   - name: Build JSON Payload
+    #     id: build-payload
+    #     shell: pwsh
+    #     run: |
+    #       # Collect all input parameters into a structured JSON object
+    #       Write-Host "Pre-collecting input parameters..."          
+    #       Write-Host ("CorrelationId: " + "${{ github.run_id }}")
+
+    #       $payload = @{
+    #           department = "${{ inputs.Department }}"
+    #           requestType = "${{ inputs.RequestType }}"
+    #       }
+          
+    #       Write-Host "Post-collecting input parameters..."
+          
+    #       # Convert to JSON string
+    #       $jsonPayload = $payload | ConvertTo-Json -Compress
+          
+    #       # Output for next step
+    #       Write-Host "Payload built:"
+    #       Write-Host $jsonPayload
+          
+    #       # Set as output (escape for GitHub Actions)
+    #       "payload=$jsonPayload" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          
+    #   - name: Display Payload (Debug)
+    #     run: |
+    #       echo "🔍 Payload to be sent to Zekt:"
+    #       echo '${{ steps.build-payload.outputs.payload }}'
+
+    #   - name: Send Event to Zekt
+    #     id: zekt
+    #     uses: zekt-dev-org/zekt-action@v2.1.0
+    #     with:
+    #       event-type: 'custom-provider-event'
+    #       payload: ${{ steps.build-payload.outputs.payload }}
+
+      - name: Confirmation
+        run: |
+          echo "✅ Event should be generated in GitHub - no sent message using Zekt!"
+          echo ""
