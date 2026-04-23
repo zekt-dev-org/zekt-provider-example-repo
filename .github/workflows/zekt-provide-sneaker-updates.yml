@@ -1,0 +1,110 @@
+name: Example - Provide Sneaker Updates through Zekt to consumers
+
+on:
+  workflow_dispatch:
+    inputs:
+      brand_name:
+        description: 'Brand name of sneaker'
+        required: true
+        default: 'someSneakerBrand'
+        type: string
+      model_name:
+        description: 'Model name of sneaker'
+        required: true
+        default: 'someSneakerModel'
+        type: string
+      update_date:
+        description: 'Update date of sneaker'
+        required: true
+        default: '2028-12-31'
+        type: string
+      recommended_retail_price:
+        description: 'Recommended retail price of sneaker'
+        required: true
+        default: '99.99'
+        type: string
+      isPublic:
+        description: 'Is this sneaker update public?'
+        required: true
+        default: false
+        type: boolean
+      isLimitedEdition:
+        description: 'Is this sneaker a limited edition?'
+        required: true
+        default: false
+        type: boolean
+      isPushedToMarket:
+        description: 'Should this sneaker be relased to market or removed from market?'
+        required: true
+        default: false
+        type: boolean
+
+
+jobs:
+  process-sneaker-updates-through-zekt:
+    name: Send Event & Message payload to Zekt
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # Required for OIDC authentication
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build JSON Payload
+        id: build-payload
+        shell: pwsh
+        run: |
+          # Collect all input parameters into a structured JSON object
+          Write-Host "Pre-collecting input parameters..."
+          Write-Host ("CorrelationId: " + "${{ github.run_id }}")
+
+          $payload = @{
+              brand_name = "${{ inputs.brand_name }}"
+              model_name = "${{ inputs.model_name }}"
+              workflowRunId = "${{ github.run_id }}"
+              update_date = "${{ inputs.update_date }}"
+              recommended_retail_price = "${{ inputs.recommended_retail_price }}"
+              isPublic = "${{ inputs.isPublic }}"
+              isLimitedEdition = "${{ inputs.isLimitedEdition }}"
+              isPushedToMarket = "${{ inputs.isPushedToMarket }}"
+              sender = "${{ github.actor }}"
+          }
+          
+          Write-Host "Post-collecting input parameters..."
+          
+          # Convert to JSON string
+          $jsonPayload = $payload | ConvertTo-Json -Compress
+          
+          # Output for next step
+          Write-Host "Payload built:"
+          Write-Host $jsonPayload
+          
+          # Set as output (escape for GitHub Actions)
+          "payload=$jsonPayload" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          
+      - name: Display Payload (Debug)
+        run: |
+          echo "🔍 Sneaker payload to be sent to Zekt:"
+          echo '${{ steps.build-payload.outputs.payload }}'
+
+      - name: Send Sneaker Payload to Zekt
+        id: zekt
+        uses: zekt-dev-org/zekt-action@v2.1.0
+        with:
+          event-type: 'zekt-sneaker-update-event'
+          payload: ${{ steps.build-payload.outputs.payload }}
+
+      - name: Confirmation
+        run: |
+          echo "✅ Event sent to Zekt successfully!"
+          echo ""
+          echo "📋 Summary:"
+          echo "  - Event Type: zekt-sneaker-update-event"
+          echo "  - Event ID: ${{ steps.zekt.outputs.event-id }}"
+          echo "  - Status: ${{ steps.zekt.outputs.status }}"
+          echo "  - Workflow Run: ${{ github.run_id }}"
+          echo "  - Repository: ${{ github.repository }}"
+          echo "  - Triggered by: ${{ github.actor }}"
+          echo ""
