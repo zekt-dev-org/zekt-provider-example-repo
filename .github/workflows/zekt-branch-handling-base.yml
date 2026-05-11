@@ -63,7 +63,7 @@ jobs:
           event-type: 'zekt-branch-handling-base'
           payload: ${{ steps.build-payload.outputs.payload }}
 
-      - name: Confirmation
+      - name: Confirmation of branch-handling 
         run: |
           echo "✅ Event sent to Zekt successfully!"
           echo ""
