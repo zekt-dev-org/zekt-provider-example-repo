@@ -1,4 +1,4 @@
-name: Example - Provide Sneaker Updates through Zekt to consumers
+name: Example - Request infrastructure deployment through Zekt from provider
 
 
 on:
@@ -17,7 +17,7 @@ on:
       stack_properties:
         description: 'the stack properties, inputed as a string - to be JSON converted'
         required: true
-        default: ''
+        default: '{"stack_name":"three_tier_microservices_arc","stack_provider":"azure","stack_frontend_framework":"next.js","stack_compute_runtime":"dotnet_core|v10","stack_persistency":"cosmos"}'
         type: string
       customer_id:
         description: 'customer id to attribute deployment for'
@@ -32,7 +32,7 @@ on:
       network_properties:
         description: 'the network properties, inputed as a string - to be JSON converted'
         required: true
-        default: ''
+        default: '{"central_vnet_peeringId": "someResourceId","some_other_property": "someOtherValue"}'
         type: string
 
 
