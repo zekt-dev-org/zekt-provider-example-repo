@@ -1,0 +1,80 @@
+name: Example - Local Zekt Repository Trigger Service
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo_type:
+        description: 'Specify if the type is local or remote'
+        required: true
+        default: 'local'
+        type: string
+      service_type:
+        description: 'Specify if the service is for general purpose or specific'
+        required: true
+        default: 'specific'
+        type: string
+
+
+jobs:
+  process-local-repo-triggering-through-zekt:
+    name: Send Event & Message payload to Zekt
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # Required for OIDC authentication
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build JSON Payload
+        id: build-payload
+        shell: pwsh
+        run: |
+          # Collect all input parameters into a structured JSON object
+          Write-Host "Pre-collecting input parameters..."
+          Write-Host ("CorrelationId: " + "${{ github.run_id }}")
+
+          $payload = @{
+              repo_type = "${{ inputs.repo_type }}"
+              service_type = "${{ inputs.service_type }}"
+              workflowRunId = "${{ github.run_id }}"
+              sender = "${{ github.actor }}"
+          }
+          
+          Write-Host "Post-collecting input parameters..."
+          
+          # Convert to JSON string
+          $jsonPayload = $payload | ConvertTo-Json -Compress
+          
+          # Output for next step
+          Write-Host "Payload built:"
+          Write-Host $jsonPayload
+          
+          # Set as output (escape for GitHub Actions)
+          "payload=$jsonPayload" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          
+      - name: Display Payload (Debug)
+        run: |
+          echo "🔍 Local Zekt Repository payload to be sent to Zekt:"
+          echo '${{ steps.build-payload.outputs.payload }}'
+
+      - name: Send Local Zekt Repository Payload to Zekt
+        id: zekt
+        uses: zekt-dev-org/zekt-action@v2.1.0
+        with:
+          event-type: 'zekt-local-repo-update-event'
+          payload: ${{ steps.build-payload.outputs.payload }}
+
+      - name: Confirmation
+        run: |
+          echo "✅ Event sent to Zekt successfully!"
+          echo ""
+          echo "📋 Summary:"
+          echo "  - Event Type: zekt-local-repo-update-event"
+          echo "  - Event ID: ${{ steps.zekt.outputs.event-id }}"
+          echo "  - Status: ${{ steps.zekt.outputs.status }}"
+          echo "  - Workflow Run: ${{ github.run_id }}"
+          echo "  - Repository: ${{ github.repository }}"
+          echo "  - Triggered by: ${{ github.actor }}"
+          echo ""
