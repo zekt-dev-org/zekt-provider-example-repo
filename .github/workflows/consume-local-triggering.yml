@@ -1,0 +1,31 @@
+name: Local Repo Update Workflow - Consumer
+
+on:
+  repository_dispatch:
+    types: [zekt-local-repo-update-event]
+
+jobs:
+  handle-zekt-event:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Display event information
+        shell: pwsh
+        run: |
+          $event = '${{ toJson(github.event) }}' | ConvertFrom-Json
+          Write-Host "Full Event Object:" -ForegroundColor Cyan
+          Write-Host ($event | ConvertTo-Json -Depth 10)
+
+          # - SHOW THE PAYLOAD - VALIDATE PROPERTY VALUES:
+          Write-Host ("repo_type: " + $event.client_payload.zekt.payload.repo_type) -ForegroundColor Yellow
+          Write-Host ("service_type: " + $event.client_payload.zekt.payload.service_type) -ForegroundColor Yellow
+
+      - name: Process Zekt workflow completion
+        shell: pwsh
+        run: |
+          Write-Host "Processing provider-test-event ..." -ForegroundColor Green
+          # Add your custom processing logic here
+          Write-Host "Workflow completed successfully!" -ForegroundColor Green
