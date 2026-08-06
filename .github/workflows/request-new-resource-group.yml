@@ -72,6 +72,39 @@ jobs:
               sender = "${{ github.actor }}"
           }
           
+          # if a specified zekt schema looks as follows (within the UI):
+
+          #   {
+          #     "$schema": "https://json-schema.org/draft/2020-12/schema",
+          #     "type": "object",
+          #     "title": "Zekt Payload Schema",
+          #     "description": "Defines the payload structure subscribers must send when dispatching to this consumer service",
+          #     "properties": {
+          #       "region": {
+          #         "type": "string"
+          #       },
+          #       "name": {
+          #         "type": "string"
+          #       },
+          #       "tags": {
+          #         "type": "string"
+          #       }
+          #     },
+          #     "required": [
+          #       "region",
+          #       "name"
+          #     ]
+          #   }            
+
+          # - then the corresponding requester (of the consumer service) should not submit a payload that already contains the "properties" holder, as it is a JSON Schema keyword — 
+          #   it declares validation rules for fields that may exist at the root of the object. It is not a structural wrapper you replicate in the payload.
+          
+
+
+
+
+
+
           Write-Host "Post-collecting input parameters..."
           
           # Convert to JSON string
