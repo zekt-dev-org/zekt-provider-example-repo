@@ -64,7 +64,7 @@ jobs:
               tenantId = "${{ inputs.tenantId }}"
               subscriptionId = "${{ inputs.subscriptionId }}"
               region = "${{ inputs.region }}"
-              name = "${{ inputs.name }}"
+              # name = "${{ inputs.name }}"
               department = "${{ inputs.tag_department }}"
               contact = "${{ inputs.tag_contact }}"
               contact_email = "${{ inputs.tag_contact_email }}"
