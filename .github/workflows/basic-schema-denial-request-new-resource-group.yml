@@ -1,4 +1,4 @@
-name: Bad Schema - from consumer service in Zekt
+name: Bad Schema - request consumer service in Zekt
 
 on:
   workflow_dispatch:
@@ -41,8 +41,8 @@ on:
 
 
 jobs:
-  request-resource-group-through-zekt:
-    name: Request New Resource Group through Zekt
+  request-consumer-service-through-zekt:
+    name: Request Consumer Service - using bad schema - through Zekt
     runs-on: ubuntu-latest
     permissions:
       id-token: write   # Required for OIDC authentication
@@ -100,11 +100,6 @@ jobs:
           #   it declares validation rules for fields that may exist at the root of the object. It is not a structural wrapper you replicate in the payload.
           
 
-
-
-
-
-
           Write-Host "Post-collecting input parameters..."
           
           # Convert to JSON string
@@ -126,7 +121,7 @@ jobs:
         id: zekt
         uses: zekt-dev-org/zekt-action@v2.1.0
         with:
-          event-type: 'service-new-resourcegroup-request'
+          event-type: 'bad-schema-consumer-service-validation'
           payload: ${{ steps.build-payload.outputs.payload }}
 
       - name: Confirmation
@@ -134,7 +129,7 @@ jobs:
           echo "✅ Event sent to Zekt successfully!"
           echo ""
           echo "📋 Summary:"
-          echo "  - Event Type: service-new-resourcegroup-request"
+          echo "  - Event Type: bad-schema-consumer-service-validation"
           echo "  - Event ID: ${{ steps.zekt.outputs.event-id }}"
           echo "  - Status: ${{ steps.zekt.outputs.status }}"
           echo "  - Workflow Run: ${{ github.run_id }}"
