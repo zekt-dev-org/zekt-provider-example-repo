@@ -66,6 +66,7 @@ jobs:
                 {
                   "step_id": "create-sub",
                   "service_slug": "new-az-subscription",
+                  # "service_owner_name": "internal-tools-org",
                   "input": {
                     "tenantId": "${{ inputs.tenantId }}",
                     "name": "${{ inputs.name }}",
@@ -80,6 +81,7 @@ jobs:
                 {
                   "step_id": "create-resourcegroup",
                   "service_slug": "new-az-resource-group",
+                  # "service_owner_name": "internal-tools-org",
                   "depends_on": ["create-sub"],
                   "input": {
                     "region": "${{ inputs.region }}",
@@ -95,6 +97,7 @@ jobs:
                 {
                   "step_id": "create-keyvault",
                   "service_slug": "new-az-keyvault",
+                  # "service_owner_name": "internal-tools-org",
                   "depends_on": ["create-resourcegroup"],
                   "input": {
                     "tenantId": "${{ inputs.tenantId }}",
