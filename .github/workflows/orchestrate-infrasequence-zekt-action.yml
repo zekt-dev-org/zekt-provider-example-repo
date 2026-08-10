@@ -100,6 +100,7 @@ jobs:
                     "subscriptionId": "${{ steps.create-sub.outputs.subscription_id }}",
                     "region": "${{ inputs.region }}",
                     "name": "${{ inputs.name }}",
+                    "evnironment": "${{ inputs.environment }}",
                     "tags": {
                       "department": "${{ inputs.tag_department }}",
                       "contact": "${{ inputs.tag_contact }}",
