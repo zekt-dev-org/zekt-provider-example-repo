@@ -84,6 +84,7 @@ jobs:
                   "input": {
                     "region": "${{ inputs.region }}",
                     "name": "${{ inputs.name }}",
+                    "subscriptionId": "${{ steps.create-sub.outputs.subscription_id }}",
                     "tags": {
                       "department": "${{ inputs.tag_department }}",
                       "contact": "${{ inputs.tag_contact }}",
@@ -100,7 +101,8 @@ jobs:
                     "subscriptionId": "${{ steps.create-sub.outputs.subscription_id }}",
                     "region": "${{ inputs.region }}",
                     "name": "${{ inputs.name }}",
-                    "evnironment": "${{ inputs.environment }}",
+                    "environment": "${{ inputs.environment }}",
+                    "resourceGroupName": "${{ steps.create-resourcegroup.outputs.resource_group_name }}",
                     "tags": {
                       "department": "${{ inputs.tag_department }}",
                       "contact": "${{ inputs.tag_contact }}",
@@ -118,8 +120,8 @@ jobs:
           echo ""
           echo "📋 Summary:"
           echo "  - Event Type: service-new-infrastructure-sequence-request"
-          echo "  - Event ID: ${{ steps.zekt.outputs.event-id }}"
-          echo "  - Status: ${{ steps.zekt.outputs.status }}"
+          echo "  - Event ID: ${{ steps.orch.outputs.execution_id }}"
+          echo "  - Status: ${{ steps.orch.outputs.execution_status }}"
           echo "  - Workflow Run: ${{ github.run_id }}"
           echo "  - Repository: ${{ github.repository }}"
           echo "  - Triggered by: ${{ github.actor }}"
