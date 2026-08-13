@@ -98,7 +98,7 @@ jobs:
                   "service_slug": "new-az-keyvault",
                   "depends_on": ["create-resourcegroup"],
                   "input": {
-                    "tenantId": "${{ inputs.tenantId }}",
+                    "tenantId": "${{ steps.create-sub.outputs.tenant_id }}",
                     "subscriptionId": "${{ steps.create-sub.outputs.subscription_id }}",
                     "region": "${{ inputs.region }}",
                     "name": "${{ inputs.name }}",
