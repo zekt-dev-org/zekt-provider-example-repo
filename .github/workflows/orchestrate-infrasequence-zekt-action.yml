@@ -120,15 +120,16 @@ jobs:
           # Each completed step's outputs are exposed as:
           #   steps.<id>.outputs.step_<step_id>_outputs_<field>
 
+
           # --- Outputs from create-sub ---
-          $subscriptionId  = '${{ steps.orch.outputs.subscription_id }}'
-          $tenantId        = '${{ steps.orch.outputs.tenant_id }}'
+          $subscriptionId  = '${{ steps.orch.outputs.work.outputs.subscription_id }}'
+          $tenantId        = '${{ steps.orch.outputs.work.outputs.tenant_id }}'
 
           # --- Outputs from create-resourcegroup ---
-          $resourceGroup   = '${{ steps.orch.outputs.resourcegroup_name }}'
+          $resourceGroup   = '${{ steps.orch.outputs.extract-input-from-orchestration.outputs.resourcegroup_name }}'
 
           # --- Outputs from create-keyvault ---
-          $keyvaultName    = '${{ steps.orch.outputs.keyvault_name }}'
+          $keyvaultName    = '${{ steps.orch.outputs.extract-input-from-orchestration.outputs.keyvault_name }}'
 
           Write-Host "Subscription    : $subscriptionId"
           Write-Host "Tenant          : $tenantId"
