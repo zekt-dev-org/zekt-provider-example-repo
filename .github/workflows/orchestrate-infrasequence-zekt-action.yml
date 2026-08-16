@@ -114,6 +114,31 @@ jobs:
               ]
             }
 
+      - name: Process outputs from orchestrated services
+        shell: pwsh
+        run: |
+          # Each completed step's outputs are exposed as:
+          #   steps.<id>.outputs.step_<step_id>_outputs_<field>
+
+          # --- Outputs from create-sub ---
+          $subscriptionId  = '${{ steps.orch.outputs.subscription_id }}'
+          $tenantId        = '${{ steps.orch.outputs.tenant_id }}'
+
+          # --- Outputs from create-resourcegroup ---
+          $resourceGroup   = '${{ steps.orch.outputs.resourcegroup_name }}'
+
+          # --- Outputs from create-keyvault ---
+          $keyvaultName    = '${{ steps.orch.outputs.keyvault_name }}'
+
+          Write-Host "Subscription    : $subscriptionId"
+          Write-Host "Tenant          : $tenantId"
+          Write-Host "Resource Group  : $resourceGroup"
+          Write-Host "Key Vault       : $keyvaultName"
+
+          # Forward any value downstream via GITHUB_OUTPUT
+          # "subscription_id=$subscriptionId" >> $env:GITHUB_OUTPUT
+          # "resource_group=$resourceGroup"   >> $env:GITHUB_OUTPUT
+
 
       - name: Confirmation
         run: |
