@@ -1,4 +1,4 @@
-name: Request New Infrastructure Sequence - from consumer service in Zekt
+name: Request Orchestation Failure Validation
 
 on:
   workflow_dispatch:
