@@ -124,7 +124,7 @@ jobs:
           $tenantId       = '${{ steps.orch.outputs.step_create-sub_outputs_tenant_id }}'
 
           # --- Outputs from create-resourcegroup ---
-          $resourceGroup  = '${{ steps.orch.outputs.step_create-resourcegroup_outputs_resourceGroupName }}'
+          $resourceGroup  = '${{ steps.orch.outputs.step_create-resourcegroup_outputs_resourcegroup_name }}'
 
           # --- Outputs from create-keyvault ---
           $keyvaultName   = '${{ steps.orch.outputs.step_create-keyvault_outputs_keyvault_name }}'
