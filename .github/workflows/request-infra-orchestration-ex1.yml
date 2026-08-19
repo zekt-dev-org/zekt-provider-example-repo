@@ -1,48 +1,29 @@
-name: Request Orchestation Failure Validation
+name: Example infrastructure orchestration - across landing zones
 
 on:
   workflow_dispatch:
     inputs:
-      tenantId:
-        description: "Tenant ID for the sequence"
-        required: true
-        default: "932312-323213231-32132132-13213221"
-        type: string
       name:
         description: "Name of the infrastructure instance"
         required: true
         default: "myfakeinstance"
+        type: string
+      goldenModelChosen:
+        description: "The golden path / package chosen"
+        required: true
+        default: "3-tier-webapp-onprem-and-oci"
         type: string
       environment:
         description: "Environment for the infrastructure instance"
         required: true
         default: "dev"
         type: string
-      region:
-        description: "Region for the infrastructure instance"
-        required: true
-        default: "westeurope"
-        type: string
-      tag_department:
-        description: "Department tag for the infrastructure instance"
-        required: true
-        default: "finance"
-        type: string
-      tag_contact:
-        description: "Contact phone number for the infrastructure instance"
-        required: true
-        default: "+4640203949494"
-        type: string
-      tag_contact_email:
-        description: "Contact email for the infrastructure instance"
-        required: true
-        default: "user@example.com"
-        type: string
+
 
 
 jobs:
-  request-infra-orchestration-through-zekt:
-    name: Failing Infrastructure Sequence through Zekt
+  request-infra-orchestration-vendors:
+    name: Request New Infrastructure Sequence across Landing Zones
     runs-on: ubuntu-latest
     permissions:
       id-token: write   # Required for OIDC authentication
@@ -65,50 +46,31 @@ jobs:
               "default_service_owner": "zekt-dev-org",
               "services": [
                 {
-                  "step_id": "create-sub",
-                  "service_slug": "new-az-subscription",
+                  "step_id": "create-on-prem-ns-here",
+                  "service_slug": "new-op-k8namespace",
                   "input": {
-                    "tenantId": "${{ inputs.tenantId }}",
                     "name": "${{ inputs.name }}",
                     "environment": "${{ inputs.environment }}",
-                    "tags": {
-                      "department": "${{ inputs.tag_department }}",
-                      "contact": "${{ inputs.tag_contact }}",
-                      "contact_email": "${{ inputs.tag_contact_email }}"
-                    }
+                    "goldenModelChosen": "${{ inputs.goldenModelChosen }}"
                   }
                 },
                 {
-                  "step_id": "create-failure",
-                  "service_slug": "infra-failure",
-                  "depends_on": ["create-sub"],
+                  "step_id": "create-oci-autonomous-db",
+                  "service_slug": "new-oci-autonomous-db",
+                  "depends_on": ["create-on-prem-ns-here"],
                   "input": {
-                    "region": "${{ inputs.region }}",
                     "name": "${{ inputs.name }}",
-                    "subscriptionId": "${{ steps.create-sub.outputs.subscription_id }}",
-                    "tags": {
-                      "department": "${{ inputs.tag_department }}",
-                      "contact": "${{ inputs.tag_contact }}",
-                      "contact_email": "${{ inputs.tag_contact_email }}"
-                    }
+                    "k8namespaceId": "${{ steps.create-on-prem-ns-here.outputs.k8_namespace_id }}"
                   }
                 },
                 {
-                  "step_id": "create-keyvault",
-                  "service_slug": "new-az-keyvault",
-                  "depends_on": ["create-failure"],
+                  "step_id": "create-oci-keyvault",
+                  "service_slug": "new-oci-keyvault",
+                  "depends_on": ["create-oci-autonomous-db"],
+                  "service_owner_name": "internal-tools-org",
                   "input": {
-                    "tenantId": "${{ steps.create-sub.outputs.tenant_id }}",
-                    "subscriptionId": "${{ steps.create-sub.outputs.subscription_id }}",
-                    "region": "${{ inputs.region }}",
                     "name": "${{ inputs.name }}",
-                    "environment": "${{ inputs.environment }}",
-                    "resourceGroupName": "${{ steps.create-resourcegroup.outputs.resource_group_name }}",
-                    "tags": {
-                      "department": "${{ inputs.tag_department }}",
-                      "contact": "${{ inputs.tag_contact }}",
-                      "contact_email": "${{ inputs.tag_contact_email }}"
-                    }
+                    "environment": "${{ inputs.environment }}"
                   }
                 }
               ]
@@ -117,7 +79,6 @@ jobs:
       - name: Process outputs from orchestrated services
         shell: pwsh
         run: |
-        
           # Pattern: steps.<orch-step-id>.outputs.step_<payload-step_id>_outputs_<field>
 
           # --- Outputs from create-sub ---
