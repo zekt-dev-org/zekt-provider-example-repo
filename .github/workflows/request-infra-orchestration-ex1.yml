@@ -35,6 +35,16 @@ jobs:
 
         # "service_owner_name": "internal-tools-org",
 
+
+      - name: Echoing what we are validating
+        shell: pwsh
+        run: |
+        
+          Write-Host "3 services in one orchestration - where 2 are in a github organization and 1 is having different github owner context (larswurm) - but all are orchestrated through Zekt"
+          Write-Host "None of the 3 services are listed in the public Zekt registry"
+          Write-Host "Each service accept inputs (schema validation enforced) - and produce outputs to requestor through zekt-action"
+
+
       - name: Submit and wait
         id: orch
         uses: zekt-dev-org/zekt-action@v3
@@ -67,7 +77,7 @@ jobs:
                   "step_id": "create-oci-keyvault",
                   "service_slug": "new-oci-keyvault",
                   "depends_on": ["create-oci-autonomous-db"],
-                  "service_owner_name": "internal-tools-org",
+                  "service_owner_name": "larswurm",
                   "input": {
                     "name": "${{ inputs.name }}",
                     "environment": "${{ inputs.environment }}"
