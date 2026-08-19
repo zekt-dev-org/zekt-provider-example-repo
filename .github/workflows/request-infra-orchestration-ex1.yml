@@ -39,7 +39,7 @@ jobs:
       - name: Echoing what we are validating
         shell: pwsh
         run: |
-        
+
           Write-Host "3 services in one orchestration - where 2 are in a github organization and 1 is having different github owner context (larswurm) - but all are orchestrated through Zekt"
           Write-Host "None of the 3 services are listed in the public Zekt registry"
           Write-Host "Each service accept inputs (schema validation enforced) - and produce outputs to requestor through zekt-action"
@@ -91,20 +91,27 @@ jobs:
         run: |
           # Pattern: steps.<orch-step-id>.outputs.step_<payload-step_id>_outputs_<field>
 
-          # --- Outputs from create-sub ---
-          $subscriptionId = '${{ steps.orch.outputs.step_create-sub_outputs_subscription_id }}'
-          $tenantId       = '${{ steps.orch.outputs.step_create-sub_outputs_tenant_id }}'
+          # --- Outputs from create-namespace ---
+          Write-Host ("K8 namespace output properties:")
+          $k8-namespace-guid = '${{ steps.orch.outputs.step_create-on-prem-ns-here_outputs_k8-namespace-guid }}'
+          $k8-namespace-name = '${{ steps.orch.outputs.step_create-on-prem-ns-here_outputs_k8-namespace-name }}'
 
-          # --- Outputs from create-resourcegroup ---
-          $resourceGroup  = '${{ steps.orch.outputs.step_create-resourcegroup_outputs_resourcegroup_name }}'
+          # --- Outputs from create-oci-autonomous-db ---
+          Write-Host ("OCI DB output properties:")
+          $oci-autonomous-db-guid = '${{ steps.orch.outputs.step_create-oci-autonomous-db_outputs_oci-autonomous-db-guid }}'
+          $oci-autonomous-db-name = '${{ steps.orch.outputs.step_create-oci-autonomous-db_outputs_oci-autonomous-db-name }}'
 
-          # --- Outputs from create-keyvault ---
-          $keyvaultName   = '${{ steps.orch.outputs.step_create-keyvault_outputs_keyvault_name }}'
+          # --- Outputs from OCI create-keyvault ---
+          Write-Host ("OCI Key Vault output properties:")
+          $oci-keyvault-guid = '${{ steps.orch.outputs.step_create-oci-keyvault_outputs_oci-keyvault-guid }}'
+          $oci-keyvault-name = '${{ steps.orch.outputs.step_create-oci-keyvault_outputs_oci-keyvault-name }}'
 
-          Write-Host "Subscription    : $subscriptionId"
-          Write-Host "Tenant          : $tenantId"
-          Write-Host "Resource Group  : $resourceGroup"
-          Write-Host "Key Vault       : $keyvaultName"
+          Write-Host ("K8 namespace name    : " + $k8-namespace-name)
+          Write-Host "OCI Autonomous DB guid: " + $oci-autonomous-db-guid
+          Write-Host "OCI Key Vault guid    : " + $oci-keyvault-guid
+          Write-Host "K8 namespace guid     : " + $k8-namespace-guid
+          Write-Host ("OCI Autonomous DB name: " + $oci-autonomous-db-name)
+          Write-Host ("OCI Key Vault name    : " + $oci-keyvault-name)
           
           # Forward any value downstream via GITHUB_OUTPUT
           # "subscription_id=$subscriptionId" >> $env:GITHUB_OUTPUT
