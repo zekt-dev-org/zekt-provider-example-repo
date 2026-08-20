@@ -27,7 +27,7 @@ on:
       tenant_id:
         description: 'the tenant id to deploy infrastructure in'
         required: true
-        default: ''
+        default: '8423879423789423897423789423'
         type: string
       network_properties:
         description: 'the network properties, inputed as a string - to be JSON converted'
