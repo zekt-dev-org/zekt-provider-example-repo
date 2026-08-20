@@ -50,14 +50,21 @@ jobs:
 
       - name: Build JSON Payload
         id: build-payload
+        env:
+          STACK_PROPERTIES: ${{ inputs.stack_properties }}
+          NETWORK_PROPERTIES: ${{ inputs.network_properties }}
         shell: pwsh
         run: |
           # Collect all input parameters into a structured JSON object
           Write-Host "Pre-collecting input parameters..."
           Write-Host ("CorrelationId: " + "${{ github.run_id }}")
 
-          $stack_properties = (("${{ inputs.stack_properties }}" | ConvertFrom-Json) | ConvertTo-Json -Depth 10)
-          $network_properties = (("${{ inputs.network_properties }}" | ConvertFrom-Json) | ConvertTo-Json -Depth 10)
+          # $stack_properties = (("${{ inputs.stack_properties }}") | ConvertFrom-Json) | ConvertTo-Json -Depth 10
+          # $network_properties = (("${{ inputs.network_properties }}") | ConvertFrom-Json) | ConvertTo-Json -Depth 10
+
+          $stack_properties = $env:STACK_PROPERTIES | ConvertFrom-Json | ConvertTo-Json -Depth 10
+          $network_properties = $env:NETWORK_PROPERTIES | ConvertFrom-Json | ConvertTo-Json -Depth 10
+
 
           $payload = @{
               project_name = "${{ inputs.project_name }}"
