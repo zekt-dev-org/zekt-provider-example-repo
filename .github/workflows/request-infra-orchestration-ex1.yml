@@ -47,7 +47,7 @@ jobs:
 
       - name: Submit and wait
         id: orch
-        uses: zekt-dev-org/zekt-action@v3
+        uses: zekt-dev-org/zekt-action@main
         with:
           orchestrate: true
           wait: true                      # Block until completed | failed | timed_out

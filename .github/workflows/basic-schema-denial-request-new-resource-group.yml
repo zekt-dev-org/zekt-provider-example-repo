@@ -119,7 +119,7 @@ jobs:
 
       - name: Send Request Payload to Zekt
         id: zekt
-        uses: zekt-dev-org/zekt-action@v2.1.0
+        uses: zekt-dev-org/zekt-action@main
         with:
           event-type: 'bad-schema-consumer-service-validation'
           payload: ${{ steps.build-payload.outputs.payload }}

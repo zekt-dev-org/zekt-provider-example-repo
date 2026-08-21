@@ -77,7 +77,7 @@ jobs:
           Write-Host "Generated Step ID: $stepId"
       
       - name: Send results to Zekt
-        uses: zekt-dev-org/zekt-action@v1.0.0
+        uses: zekt-dev-org/zekt-action@main
         with:
           zekt_run_id: ${{ github.run_id }}
           zekt_step_id: ${{ steps.build-step-id.outputs.step_id }}

@@ -91,7 +91,7 @@ jobs:
 
       - name: Send Request Payload to Zekt
         id: zekt
-        uses: zekt-dev-org/zekt-action@v2.1.0
+        uses: zekt-dev-org/zekt-action@main
         with:
           event-type: 'service-new-keyvault-request'
           payload: ${{ steps.build-payload.outputs.payload }}
@@ -101,7 +101,7 @@ jobs:
           echo "✅ Event sent to Zekt successfully!"
           echo ""
           echo "📋 Summary:"
-          echo "  - Event Type: service-new-resourcegroup-request"
+          echo "  - Event Type: service-new-keyvault-request"
           echo "  - Event ID: ${{ steps.zekt.outputs.event-id }}"
           echo "  - Status: ${{ steps.zekt.outputs.status }}"
           echo "  - Workflow Run: ${{ github.run_id }}"
