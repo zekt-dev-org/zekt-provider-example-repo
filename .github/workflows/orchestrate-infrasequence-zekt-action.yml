@@ -129,10 +129,14 @@ jobs:
           # --- Outputs from create-keyvault ---
           $keyvaultName   = '${{ steps.orch.outputs.step_create-keyvault_outputs_keyvault_name }}'
 
+          # --- Outputs from re-usable workflow example:
+          $reusableWorkflowOutput = '${{ steps.orch.outputs.step_create-keyvault_outputs_reusable_output }}'
+
           Write-Host "Subscription    : $subscriptionId"
           Write-Host "Tenant          : $tenantId"
           Write-Host "Resource Group  : $resourceGroup"
           Write-Host "Key Vault       : $keyvaultName"
+          Write-Host "Reusable Output : $reusableWorkflowOutput"
           
           # Forward any value downstream via GITHUB_OUTPUT
           # "subscription_id=$subscriptionId" >> $env:GITHUB_OUTPUT
