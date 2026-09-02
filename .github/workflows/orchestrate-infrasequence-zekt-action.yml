@@ -71,11 +71,7 @@ jobs:
                     "tenantId": "${{ inputs.tenantId }}",
                     "name": "${{ inputs.name }}",
                     "environment": "${{ inputs.environment }}",
-                    "tags": {
-                      "department": "${{ inputs.tag_department }}",
-                      "contact": "${{ inputs.tag_contact }}",
-                      "contact_email": "${{ inputs.tag_contact_email }}"
-                    }
+                    "tags": { "department": "${{ inputs.tag_department }}", "contact": "${{ inputs.tag_contact }}", "contact_email": "${{ inputs.tag_contact_email }}" }
                   }
                 },
                 {
@@ -86,11 +82,7 @@ jobs:
                     "region": "${{ inputs.region }}",
                     "name": "${{ inputs.name }}",
                     "subscriptionId": "${{ steps.create-sub.outputs.subscription_id }}",
-                    "tags": {
-                      "department": "${{ inputs.tag_department }}",
-                      "contact": "${{ inputs.tag_contact }}",
-                      "contact_email": "${{ inputs.tag_contact_email }}"
-                    }
+                    "tags": { "department": "${{ inputs.tag_department }}", "contact": "${{ inputs.tag_contact }}", "contact_email": "${{ inputs.tag_contact_email }}" }
                   }
                 },
                 {
@@ -104,11 +96,7 @@ jobs:
                     "name": "${{ inputs.name }}",
                     "environment": "${{ inputs.environment }}",
                     "resourceGroupName": "${{ steps.create-resourcegroup.outputs.resource_group_name }}",
-                    "tags": {
-                      "department": "${{ inputs.tag_department }}",
-                      "contact": "${{ inputs.tag_contact }}",
-                      "contact_email": "${{ inputs.tag_contact_email }}"
-                    }
+                    "tags": { "department": "${{ inputs.tag_department }}", "contact": "${{ inputs.tag_contact }}", "contact_email": "${{ inputs.tag_contact_email }}" }
                   }
                 }
               ]
