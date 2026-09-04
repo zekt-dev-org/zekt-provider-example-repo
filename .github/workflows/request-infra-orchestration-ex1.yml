@@ -93,25 +93,25 @@ jobs:
 
           # --- Outputs from create-namespace ---
           Write-Host ("K8 namespace output properties:")
-          $k8-namespace-name = '${{ steps.orch.outputs.step_create-on-prem-ns-here_outputs_k8-namespace-name }}'
-          $k8-namespace-guid = '${{ steps.orch.outputs.step_create-on-prem-ns-here_outputs_k8-namespace-guid }}'
+          $k8NamespaceName = '${{ steps.orch.outputs.step_create-on-prem-ns-here_outputs_k8-namespace-name }}'
+          $k8NamespaceGuid = '${{ steps.orch.outputs.step_create-on-prem-ns-here_outputs_k8-namespace-guid }}'
 
           # --- Outputs from create-oci-autonomous-db ---
           Write-Host ("OCI DB output properties:")
-          $oci-autonomous-db-guid = '${{ steps.orch.outputs.step_create-oci-autonomous-db_outputs_oci-autonomous-db-guid }}'
-          $oci-autonomous-db-name = '${{ steps.orch.outputs.step_create-oci-autonomous-db_outputs_oci-autonomous-db-name }}'
+          $ociAutonomousDbGuid = '${{ steps.orch.outputs.step_create-oci-autonomous-db_outputs_oci-autonomous-db-guid }}'
+          $ociAutonomousDbName = '${{ steps.orch.outputs.step_create-oci-autonomous-db_outputs_oci-autonomous-db-name }}'
 
           # --- Outputs from OCI create-keyvault ---
           Write-Host ("OCI Key Vault output properties:")
-          $oci-keyvault-guid = '${{ steps.orch.outputs.step_create-oci-keyvault_outputs_oci-keyvault-guid }}'
-          $oci-keyvault-name = '${{ steps.orch.outputs.step_create-oci-keyvault_outputs_oci-keyvault-name }}'
+          $ociKeyvaultGuid = '${{ steps.orch.outputs.step_create-oci-keyvault_outputs_oci-keyvault-guid }}'
+          $ociKeyvaultName = '${{ steps.orch.outputs.step_create-oci-keyvault_outputs_oci-keyvault-name }}'
 
-          Write-Host ("K8 namespace name    : " + $k8-namespace-name)
-          Write-Host "OCI Autonomous DB guid: " + $oci-autonomous-db-guid
-          Write-Host "OCI Key Vault guid    : " + $oci-keyvault-guid
-          Write-Host "K8 namespace guid     : " + $k8-namespace-guid
-          Write-Host ("OCI Autonomous DB name: " + $oci-autonomous-db-name)
-          Write-Host ("OCI Key Vault name    : " + $oci-keyvault-name)
+          Write-Host ("K8 namespace name    : " + $k8NamespaceName)
+          Write-Host ("OCI Autonomous DB guid: " + $ociAutonomousDbGuid)
+          Write-Host ("OCI Key Vault guid    : " + $ociKeyvaultGuid)
+          Write-Host ("K8 namespace guid     : " + $k8NamespaceGuid)
+          Write-Host ("OCI Autonomous DB name: " + $ociAutonomousDbName)
+          Write-Host ("OCI Key Vault name    : " + $ociKeyvaultName)
           
           # Forward any value downstream via GITHUB_OUTPUT
           # "subscription_id=$subscriptionId" >> $env:GITHUB_OUTPUT
