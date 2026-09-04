@@ -98,6 +98,20 @@ jobs:
                     "resourceGroupName": "${{ steps.orch-1.outputs.step_create-resourcegroup_outputs_resource_group_name }}",
                     "tags": "department=${{ inputs.tag_department }} contact=${{ inputs.tag_contact }} contact_email=${{ inputs.tag_contact_email }}"
                   }
+                },
+                {
+                  "step_id": "create-vm",
+                  "service_slug": "create-new-az-vm",
+                  "depends_on": ["create-resourcegroup"],
+                  "service_owner_name": "larswurm",
+                  "input": {
+                    "tenantId": "${{ steps.orch-1.outputs.step_create-sub_outputs_tenant_id }}",
+                    "subscriptionId": "${{ steps.orch-1.outputs.step_create-sub_outputs_subscription_id }}",
+                    "region": "${{ inputs.region }}",
+                    "name": "${{ inputs.name }}",
+                    "resourceGroupName": "${{ steps.orch-1.outputs.step_create-resourcegroup_outputs_resource_group_name }}",
+                    "tags": "department=${{ inputs.tag_department }} contact=${{ inputs.tag_contact }} contact_email=${{ inputs.tag_contact_email }}"
+                  }
                 }
               ]
             }
