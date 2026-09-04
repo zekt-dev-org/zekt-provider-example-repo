@@ -54,8 +54,8 @@ jobs:
 
         # "service_owner_name": "internal-tools-org",
 
-      - name: Submit and wait
-        id: orch
+      - name: Submit and wait - 1
+        id: orch-1
         uses: zekt-dev-org/zekt-action@main
         with:
           orchestrate: true
@@ -81,7 +81,7 @@ jobs:
                   "input": {
                     "region": "${{ inputs.region }}",
                     "name": "${{ inputs.name }}",
-                    "subscriptionId": "${{ steps.create-sub.outputs.subscription_id }}",
+                    "subscriptionId": "${{ steps.orch-1.outputs.step_create-sub_outputs_subscription_id }}",
                     "tags": "department=${{ inputs.tag_department }} contact=${{ inputs.tag_contact }} contact_email=${{ inputs.tag_contact_email }}"
                   }
                 },
@@ -90,12 +90,12 @@ jobs:
                   "service_slug": "new-az-keyvault",
                   "depends_on": ["create-resourcegroup"],
                   "input": {
-                    "tenantId": "${{ steps.create-sub.outputs.tenant_id }}",
-                    "subscriptionId": "${{ steps.create-sub.outputs.subscription_id }}",
+                    "tenantId": "${{ steps.orch-1.outputs.step_create-sub_outputs_tenant_id }}",
+                    "subscriptionId": "${{ steps.orch-1.outputs.step_create-sub_outputs_subscription_id }}",
                     "region": "${{ inputs.region }}",
                     "name": "${{ inputs.name }}",
                     "environment": "${{ inputs.environment }}",
-                    "resourceGroupName": "${{ steps.create-resourcegroup.outputs.resource_group_name }}",
+                    "resourceGroupName": "${{ steps.orch-1.outputs.step_create-resourcegroup_outputs_resource_group_name }}",
                     "tags": "department=${{ inputs.tag_department }} contact=${{ inputs.tag_contact }} contact_email=${{ inputs.tag_contact_email }}"
                   }
                 }
@@ -108,17 +108,17 @@ jobs:
           # Pattern: steps.<orch-step-id>.outputs.step_<payload-step_id>_outputs_<field>
 
           # --- Outputs from create-sub ---
-          $subscriptionId = '${{ steps.orch.outputs.step_create-sub_outputs_subscription_id }}'
-          $tenantId       = '${{ steps.orch.outputs.step_create-sub_outputs_tenant_id }}'
+          $subscriptionId = '${{ steps.orch-1.outputs.step_create-sub_outputs_subscription_id }}'
+          $tenantId       = '${{ steps.orch-1.outputs.step_create-sub_outputs_tenant_id }}'
 
           # --- Outputs from create-resourcegroup ---
-          $resourceGroup  = '${{ steps.orch.outputs.step_create-resourcegroup_outputs_resourcegroup_name }}'
+          $resourceGroup  = '${{ steps.orch-1.outputs.step_create-resourcegroup_outputs_resource_group_name }}'
 
           # --- Outputs from create-keyvault ---
-          $keyvaultName   = '${{ steps.orch.outputs.step_create-keyvault_outputs_keyvault_name }}'
+          $keyvaultName   = '${{ steps.orch-1.outputs.step_create-keyvault_outputs_keyvault_name }}'
 
           # --- Outputs from re-usable workflow example:
-          $reusableWorkflowOutput = '${{ steps.orch.outputs.step_create-keyvault_outputs_reusable_output }}'
+          $reusableWorkflowOutput = '${{ steps.orch-1.outputs.step_create-keyvault_outputs_reusable_output }}'
 
           Write-Host "Subscription    : $subscriptionId"
           Write-Host "Tenant          : $tenantId"
@@ -131,14 +131,86 @@ jobs:
           # "resource_group=$resourceGroup"   >> $env:GITHUB_OUTPUT
 
 
+      - name: Submit and wait - 2
+        id: orch-2
+        uses: zekt-dev-org/zekt-action@main
+        with:
+          orchestrate: true
+          wait: true                      # Block until completed | failed | timed_out
+          payload: |
+            {
+              "default_service_owner": "zekt-dev-org",
+              "services": [
+                {
+                  "step_id": "create-on-prem-ns-here",
+                  "service_slug": "new-op-k8namespace",
+                  "input": {
+                    "name": "${{ inputs.name }}",
+                    "environment": "${{ inputs.environment }}",
+                    "goldenModelChosen": "${{ inputs.goldenModelChosen }}"
+                  }
+                },
+                {
+                  "step_id": "create-oci-autonomous-db",
+                  "service_slug": "new-oci-autonomous-db",
+                  "depends_on": ["create-on-prem-ns-here"],
+                  "input": {
+                    "name": "${{ inputs.name }}",
+                    "k8namespaceId": "${{ steps.create-on-prem-ns-here.outputs.k8_namespace_id }}"
+                  }
+                },
+                {
+                  "step_id": "create-oci-keyvault",
+                  "service_slug": "new-oci-keyvault",
+                  "depends_on": ["create-oci-autonomous-db"],
+                  "service_owner_name": "larswurm",
+                  "input": {
+                    "name": "${{ inputs.name }}",
+                    "environment": "${{ inputs.environment }}"
+                  }
+                }
+              ]
+            }
+
+      - name: Process outputs from orchestrated services
+        shell: pwsh
+        run: |
+          # Pattern: steps.<orch-step-id>.outputs.step_<payload-step_id>_outputs_<field>
+
+          # --- Outputs from create-namespace ---
+          Write-Host ("K8 namespace output properties:")
+          $k8NamespaceName = '${{ steps.orch-2.outputs.step_create-on-prem-ns-here_outputs_k8-namespace-name }}'
+          $k8NamespaceGuid = '${{ steps.orch-2.outputs.step_create-on-prem-ns-here_outputs_k8-namespace-guid }}'
+
+          # --- Outputs from create-oci-autonomous-db ---
+          Write-Host ("OCI DB output properties:")
+          $ociAutonomousDbGuid = '${{ steps.orch-2.outputs.step_create-oci-autonomous-db_outputs_oci-autonomous-db-guid }}'
+          $ociAutonomousDbName = '${{ steps.orch-2.outputs.step_create-oci-autonomous-db_outputs_oci-autonomous-db-name }}'
+
+          # --- Outputs from OCI create-keyvault ---
+          Write-Host ("OCI Key Vault output properties:")
+          $ociKeyvaultGuid = '${{ steps.orch-2.outputs.step_create-oci-keyvault_outputs_oci-keyvault-guid }}'
+          $ociKeyvaultName = '${{ steps.orch-2.outputs.step_create-oci-keyvault_outputs_oci-keyvault-name }}'
+
+          Write-Host ("K8 namespace name    : " + $k8NamespaceName)
+          Write-Host ("OCI Autonomous DB guid: " + $ociAutonomousDbGuid)
+          Write-Host ("OCI Key Vault guid    : " + $ociKeyvaultGuid)
+          Write-Host ("K8 namespace guid     : " + $k8NamespaceGuid)
+          Write-Host ("OCI Autonomous DB name: " + $ociAutonomousDbName)
+          Write-Host ("OCI Key Vault name    : " + $ociKeyvaultName)
+          
+          # Forward any value downstream via GITHUB_OUTPUT
+          # "subscription_id=$subscriptionId" >> $env:GITHUB_OUTPUT
+          # "resource_group=$resourceGroup"   >> $env:GITHUB_OUTPUT
+
       - name: Confirmation
         run: |
           echo "✅ Event sent to Zekt successfully!"
           echo ""
           echo "📋 Summary:"
           echo "  - Event Type: service-new-infrastructure-sequence-request"
-          echo "  - Event ID: ${{ steps.orch.outputs.execution_id }}"
-          echo "  - Status: ${{ steps.orch.outputs.execution_status }}"
+          echo "  - Event ID: ${{ steps.orch-2.outputs.execution_id }}"
+          echo "  - Status: ${{ steps.orch-2.outputs.execution_status }}"
           echo "  - Workflow Run: ${{ github.run_id }}"
           echo "  - Repository: ${{ github.repository }}"
           echo "  - Triggered by: ${{ github.actor }}"
