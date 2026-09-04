@@ -1,4 +1,4 @@
-name: Request New Infrastructure Sequence - from consumer service in Zekt
+name: 2-in-1 Request - New Infrastructure Sequence
 
 on:
   workflow_dispatch:
