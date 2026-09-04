@@ -93,8 +93,8 @@ jobs:
 
           # --- Outputs from create-namespace ---
           Write-Host ("K8 namespace output properties:")
-          $k8-namespace-guid = '${{ steps.orch.outputs.step_create-on-prem-ns-here_outputs_k8-namespace-guid }}'
           $k8-namespace-name = '${{ steps.orch.outputs.step_create-on-prem-ns-here_outputs_k8-namespace-name }}'
+          $k8-namespace-guid = '${{ steps.orch.outputs.step_create-on-prem-ns-here_outputs_k8-namespace-guid }}'
 
           # --- Outputs from create-oci-autonomous-db ---
           Write-Host ("OCI DB output properties:")
