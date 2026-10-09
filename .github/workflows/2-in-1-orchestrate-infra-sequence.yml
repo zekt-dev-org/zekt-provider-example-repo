@@ -201,12 +201,9 @@ jobs:
                   "service_slug": "service-new-containerapp-request",
                   "input": {
                     "name": "${{ inputs.name }}",
-                    "environment": "${{ inputs.environment }}",
-                    "goldenModelChosen": "${{ inputs.goldenModelChosen }}"
                     "tenantId": "${{ inputs.tenantId }}",
                     "subscriptionId": "${{ inputs.subscriptionId }}",
                     "region": "${{ inputs.region }}",
-                    "name": "${{ inputs.name }}",
                     "container_app_name": "mycustomazacaname"                    
                   }
                 }
