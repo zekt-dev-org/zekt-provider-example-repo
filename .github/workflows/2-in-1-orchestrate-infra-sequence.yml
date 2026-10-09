@@ -186,30 +186,6 @@ jobs:
               ]
             }
 
-      - name: Submit and wait - 3
-        id: orch-3
-        uses: zekt-dev-org/zekt-action@main
-        with:
-          orchestrate: true
-          wait: true                      # Block until completed | failed | timed_out
-          payload: |
-            {
-              "default_service_owner": "zekt-dev-org",
-              "services": [
-                {
-                  "step_id": "create-az-container-app",
-                  "service_slug": "service-new-containerapp-request",
-                  "input": {
-                    "name": "${{ inputs.name }}",
-                    "tenantId": "${{ inputs.tenantId }}",
-                    "subscriptionId": "${{ inputs.subscriptionId }}",
-                    "region": "${{ inputs.region }}",
-                    "container_app_name": "mycustomazacaname"                    
-                  }
-                }
-              ]
-            }
-
 
       - name: Process outputs from orchestrated services
         shell: pwsh
@@ -241,6 +217,51 @@ jobs:
           # Forward any value downstream via GITHUB_OUTPUT
           # "subscription_id=$subscriptionId" >> $env:GITHUB_OUTPUT
           # "resource_group=$resourceGroup"   >> $env:GITHUB_OUTPUT
+
+
+
+      - name: Submit and wait - 3
+        id: orch-3
+        uses: zekt-dev-org/zekt-action@main
+        with:
+          orchestrate: true
+          wait: true                      # Block until completed | failed | timed_out
+          payload: |
+            {
+              "default_service_owner": "zekt-dev-org",
+              "services": [
+                {
+                  "step_id": "create-az-container-app",
+                  "service_slug": "service-new-containerapp-request",
+                  "input": {
+                    "name": "${{ inputs.name }}",
+                    "tenantId": "${{ inputs.tenantId }}",
+                    "subscriptionId": "${{ inputs.subscriptionId }}",
+                    "region": "${{ inputs.region }}",
+                    "container_app_name": "mycustomazacaname"                    
+                  }
+                }
+              ]
+            }
+
+
+
+      - name: Process outputs from orchestrated services
+        shell: pwsh
+        run: |
+          # Pattern: steps.<orch-step-id>.outputs.step_<payload-step_id>_outputs_<field>
+
+          # --- Outputs from OCI create-keyvault ---
+          Write-Host ("Azure Container App - output properties:")
+          $azureContainerAppGuid = '${{ steps.orch-3.outputs.step_create-az-container-app_outputs_containerApp-name }}'
+
+          Write-Host ("Azure Container App guid: " + $azureContainerAppGuid)
+
+
+
+
+
+
 
       - name: Confirmation
         run: |
