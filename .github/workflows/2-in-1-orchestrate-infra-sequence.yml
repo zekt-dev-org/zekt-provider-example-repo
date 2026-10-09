@@ -186,6 +186,34 @@ jobs:
               ]
             }
 
+      - name: Submit and wait - 3
+        id: orch-3
+        uses: zekt-dev-org/zekt-action@main
+        with:
+          orchestrate: true
+          wait: true                      # Block until completed | failed | timed_out
+          payload: |
+            {
+              "default_service_owner": "zekt-dev-org",
+              "services": [
+                {
+                  "step_id": "create-az-container-app",
+                  "service_slug": "service-new-containerapp-request",
+                  "input": {
+                    "name": "${{ inputs.name }}",
+                    "environment": "${{ inputs.environment }}",
+                    "goldenModelChosen": "${{ inputs.goldenModelChosen }}"
+                    "tenantId": "${{ inputs.tenantId }}",
+                    "subscriptionId": "${{ inputs.subscriptionId }}",
+                    "region": "${{ inputs.region }}",
+                    "name": "${{ inputs.name }}",
+                    "container_app_name": "mycustomazacaname"                    
+                  }
+                }
+              ]
+            }
+
+
       - name: Process outputs from orchestrated services
         shell: pwsh
         run: |
