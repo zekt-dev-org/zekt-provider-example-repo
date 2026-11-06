@@ -26,8 +26,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+
       - name: Build JSON Payload
         id: build-payload
+        env:
+          DEPARTMENT: ${{ inputs.Department }}
+          REQUEST_TYPE: ${{ inputs.RequestType }}
         shell: pwsh
         run: |
           # Collect all input parameters into a structured JSON object
@@ -35,8 +39,8 @@ jobs:
           Write-Host ("CorrelationId: " + "${{ github.run_id }}")
 
           $payload = @{
-              department = "${{ inputs.Department }}"
-              requestType = "${{ inputs.RequestType }}"
+              department = $env:DEPARTMENT
+              requestType = $env:REQUEST_TYPE
           }
           
           Write-Host "Post-collecting input parameters..."
@@ -51,11 +55,6 @@ jobs:
           # Set as output (escape for GitHub Actions)
           "payload=$jsonPayload" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           
-      - name: Display Payload (Debug)
-        run: |
-          echo "🔍 Payload to be sent to Zekt:"
-          echo '${{ steps.build-payload.outputs.payload }}'
-
       - name: Send Event to Zekt
         id: zekt
         uses: zekt-dev-org/zekt-action@main
