@@ -54,6 +54,14 @@ jobs:
 
       - name: Build JSON Payload
         id: build-payload
+        env:
+          BRAND_NAME: ${{ inputs.brand_name }}
+          MODEL_NAME: ${{ inputs.model_name }}
+          UPDATE_DATE: ${{ inputs.update_date }}
+          RECOMMENDED_RETAIL_PRICE: ${{ inputs.recommended_retail_price }}
+          IS_PUBLIC: ${{ inputs.isPublic }}
+          IS_LIMITED_EDITION: ${{ inputs.isLimitedEdition }}
+          IS_PUSHED_TO_MARKET: ${{ inputs.isPushedToMarket }}
         shell: pwsh
         run: |
           # Collect all input parameters into a structured JSON object
@@ -61,14 +69,14 @@ jobs:
           Write-Host ("CorrelationId: " + "${{ github.run_id }}")
 
           $payload = @{
-              brand_name = "${{ inputs.brand_name }}"
-              model_name = "${{ inputs.model_name }}"
+              brand_name = $env:BRAND_NAME
+              model_name = $env:MODEL_NAME
               workflowRunId = "${{ github.run_id }}"
-              update_date = "${{ inputs.update_date }}"
-              recommended_retail_price = "${{ inputs.recommended_retail_price }}"
-              isPublic = "${{ inputs.isPublic }}"
-              isLimitedEdition = "${{ inputs.isLimitedEdition }}"
-              isPushedToMarket = "${{ inputs.isPushedToMarket }}"
+              update_date = $env:UPDATE_DATE
+              recommended_retail_price = $env:RECOMMENDED_RETAIL_PRICE
+              isPublic = $env:IS_PUBLIC
+              isLimitedEdition = $env:IS_LIMITED_EDITION
+              isPushedToMarket = $env:IS_PUSHED_TO_MARKET
               sender = "${{ github.actor }}"
           }
           
@@ -84,11 +92,6 @@ jobs:
           # Set as output (escape for GitHub Actions)
           "payload=$jsonPayload" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           
-      - name: Display Payload (Debug)
-        run: |
-          echo "🔍 Sneaker payload to be sent to Zekt:"
-          echo '${{ steps.build-payload.outputs.payload }}'
-
       - name: Send Sneaker Payload to Zekt
         id: zekt
         uses: zekt-dev-org/zekt-action@main
