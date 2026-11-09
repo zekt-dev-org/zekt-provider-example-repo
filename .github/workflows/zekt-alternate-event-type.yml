@@ -2,20 +2,7 @@ name: Alternate Event Type test
 
 on:
   workflow_dispatch:
-    inputs:
-      RequestType:
-        description: 'type of deployment request'
-        required: true
-        default: 'defaultRequestType-Zekt'
-        type: string
-      Department:
-        description: 'department name requesting deployment'
-        required: true
-        default: 'ZektFinance'
-        type: choice
-        options:
-          - ZektFinance
-          - ZektOps
+
 jobs:
   send-to-zekt:
     name: Send Event to Zekt
