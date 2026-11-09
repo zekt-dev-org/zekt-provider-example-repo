@@ -12,8 +12,10 @@ on:
         description: 'department name requesting deployment'
         required: true
         default: 'ZektFinance'
-        type: string
-
+        type: choice
+        options:
+          - ZektFinance
+          - ZektOps
 jobs:
   send-to-zekt:
     name: Send Event to Zekt
