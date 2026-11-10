@@ -1,0 +1,182 @@
+name: Spec 162 - Step conditions evidence
+
+# Zekt spec 162 (orchestration step conditions), the exit checks of Phases 1 and 2.
+# Run it once per scenario. Each run submits the same three-step plan with different conditions,
+# reads the execution back from Zekt's status API, and fails if Zekt's answer is not the expected one.
+# Open the execution in the Zekt console afterwards for the badges (Phase 2).
+#
+#   step            depends_on       condition                                 description
+#   create-sub      -                scenario != all-excluded                  shown on the badge
+#   create-rg       create-sub       scenario == all-included                  shown on the badge
+#   create-kv       create-rg        (none: it can only be excluded by create-rg)
+#
+#   all-included     every step runs and completes; create-sub and create-rg carry green badges
+#   partly-excluded  create-sub runs (green); create-rg is excluded by its condition (red);
+#                    create-kv is excluded because create-rg was (no badge)
+#   all-excluded     nothing is sent; the execution completes at submit with three excluded steps
+
+on:
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: "Which plan to submit"
+        required: true
+        type: choice
+        options:
+          - all-included
+          - partly-excluded
+          - all-excluded
+      name:
+        description: "Name of the infrastructure instance"
+        required: true
+        default: "spec162-evidence"
+        type: string
+
+jobs:
+  evidence:
+    name: Conditions evidence (${{ inputs.scenario }})
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # zekt-action, and the status read below, authenticate with the workflow's OIDC token
+      contents: read
+
+    steps:
+      - name: Submit the plan and wait
+        id: orch
+        uses: zekt-dev-org/zekt-action@main
+        with:
+          orchestrate: true
+          wait: true
+          # The conditions are GitHub expressions, unquoted, so Zekt receives JSON true or false.
+          payload: |
+            {
+              "default_service_owner": "zekt-dev-org",
+              "execution_mode": "sequential",
+              "services": [
+                {
+                  "step_id": "create-sub",
+                  "service_slug": "new-az-subscription",
+                  "condition": ${{ inputs.scenario != 'all-excluded' }},
+                  "condition_description": "Excluded only in the all-excluded scenario",
+                  "input": {
+                    "tenantId": "932312-323213231-32132132-13213221",
+                    "name": "${{ inputs.name }}",
+                    "environment": "dev",
+                    "tags": "department=evidence contact=spec162 contact_email=user@example.com"
+                  }
+                },
+                {
+                  "step_id": "create-rg",
+                  "service_slug": "new-az-resource-group",
+                  "depends_on": ["create-sub"],
+                  "condition": ${{ inputs.scenario == 'all-included' }},
+                  "condition_description": "Runs only in the all-included scenario",
+                  "input": {
+                    "region": "westeurope",
+                    "name": "${{ inputs.name }}",
+                    "subscriptionId": "$zekt{{ steps.create-sub.outputs.subscription_id }}",
+                    "tags": "department=evidence contact=spec162 contact_email=user@example.com"
+                  }
+                },
+                {
+                  "step_id": "create-kv",
+                  "service_slug": "new-az-keyvault",
+                  "depends_on": ["create-rg"],
+                  "input": {
+                    "tenantId": "$zekt{{ steps.create-sub.outputs.tenant_id }}",
+                    "subscriptionId": "$zekt{{ steps.create-sub.outputs.subscription_id }}",
+                    "region": "westeurope",
+                    "name": "${{ inputs.name }}",
+                    "environment": "dev",
+                    "resourceGroupName": "$zekt{{ steps.create-rg.outputs.resourcegroup_name }}",
+                    "tags": "department=evidence contact=spec162 contact_email=user@example.com"
+                  }
+                }
+              ]
+            }
+
+      - name: Read the execution back from Zekt's status API and check it
+        if: always() && steps.orch.outputs.execution_id != ''
+        shell: bash
+        env:
+          EXECUTION_ID: ${{ steps.orch.outputs.execution_id }}
+          SCENARIO: ${{ inputs.scenario }}
+        run: |
+          cat > "$RUNNER_TEMP/check.mjs" <<'EOF'
+          // Reads the execution back from Zekt's status API with this run's OIDC token (audience api://zekt, the same
+          // identity zekt-action uses) and compares Zekt's answer with the expected one for the scenario.
+          // EVIDENCE_STATUS_FILE, when set, reads a saved response instead: a local dry run of the comparison.
+          import fs from "node:fs";
+
+          const { EXECUTION_ID, SCENARIO, GITHUB_REPOSITORY, GITHUB_STEP_SUMMARY } = process.env;
+
+          const EXPECTED = {
+            "all-included": [
+              "execution completed excluded_steps=0",
+              "create-sub completed condition=true reason=- by=-",
+              "create-rg completed condition=true reason=- by=-",
+              "create-kv completed condition=- reason=- by=-",
+            ],
+            "partly-excluded": [
+              "execution completed excluded_steps=2",
+              "create-sub completed condition=true reason=- by=-",
+              "create-rg excluded condition=false reason=condition_false by=-",
+              "create-kv excluded condition=- reason=dependency_excluded by=create-rg",
+            ],
+            "all-excluded": [
+              "execution completed excluded_steps=3",
+              "create-sub excluded condition=false reason=condition_false by=-",
+              "create-rg excluded condition=false reason=condition_false by=-",
+              "create-kv excluded condition=- reason=dependency_excluded by=create-rg",
+            ],
+          };
+          const ORDER = ["create-sub", "create-rg", "create-kv"];
+
+          async function readStatus() {
+            if (process.env.EVIDENCE_STATUS_FILE) return JSON.parse(fs.readFileSync(process.env.EVIDENCE_STATUS_FILE, "utf8"));
+            const idUrl = `${process.env.ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${encodeURIComponent("api://zekt")}`;
+            const id = await fetch(idUrl, { headers: { Authorization: `bearer ${process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN}` } });
+            if (!id.ok) throw new Error(`Could not obtain an OIDC token: HTTP ${id.status}`);
+            const { value } = await id.json();
+            const res = await fetch(`https://www.zekt.dev/api/orchestration/${encodeURIComponent(EXECUTION_ID)}/status`, {
+              headers: { Authorization: `Bearer ${value}`, "X-GitHub-Repository": GITHUB_REPOSITORY },
+            });
+            const text = await res.text();
+            if (!res.ok) throw new Error(`The status API answered HTTP ${res.status}: ${text}`);
+            return JSON.parse(text);
+          }
+
+          const show = (v) => (v === null || v === undefined ? "-" : String(v));
+          const lines = (status) => [
+            `execution ${status.status} excluded_steps=${status.excluded_steps ?? 0}`,
+            ...[...status.steps]
+              .sort((a, b) => ORDER.indexOf(a.step_id) - ORDER.indexOf(b.step_id))
+              .map((s) => `${s.step_id} ${s.status} condition=${show(s.condition)} reason=${show(s.exclusion_reason)} by=${show(s.excluded_by)}`),
+          ];
+
+          const status = await readStatus();
+          console.log(`Status API response for ${EXECUTION_ID}:`);
+          console.log(JSON.stringify(status, null, 2));
+
+          const actual = lines(status);
+          const expected = EXPECTED[SCENARIO];
+          const same = expected && actual.join("\n") === expected.join("\n");
+
+          const fence = "`".repeat(3);
+          const summary = [
+            `## Spec 162 evidence: ${SCENARIO}`, "",
+            `Execution \`${EXECUTION_ID}\`, read back from \`GET /api/orchestration/{id}/status\`.`, "",
+            fence, ...actual, fence, "",
+            same ? "**As expected.**" : `**Differs from the expected answer:**\n\n${fence}\n${(expected ?? ["(unknown scenario)"]).join("\n")}\n${fence}`, "",
+          ].join("\n");
+          if (GITHUB_STEP_SUMMARY) fs.appendFileSync(GITHUB_STEP_SUMMARY, summary);
+
+          console.log(same ? "As expected:" : "::error::Zekt's answer differs from the expected one");
+          console.log(actual.join("\n"));
+          if (!same) {
+            console.log("Expected:");
+            console.log((expected ?? ["(unknown scenario)"]).join("\n"));
+            process.exitCode = 1;
+          }
+          EOF
+          node "$RUNNER_TEMP/check.mjs"
