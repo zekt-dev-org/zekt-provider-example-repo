@@ -81,7 +81,7 @@ jobs:
                   "input": {
                     "region": "${{ inputs.region }}",
                     "name": "${{ inputs.name }}",
-                    "subscriptionId": "${{ steps.create-sub.outputs.subscription_id }}",
+                    "subscriptionId": "$zekt{{ steps.create-sub.outputs.subscription_id }}",
                     "tags": "department=${{ inputs.tag_department }} contact=${{ inputs.tag_contact }} contact_email=${{ inputs.tag_contact_email }}"
                   }
                 },
@@ -90,12 +90,12 @@ jobs:
                   "service_slug": "new-az-keyvault",
                   "depends_on": ["create-resourcegroup"],
                   "input": {
-                    "tenantId": "${{ steps.create-sub.outputs.tenant_id }}",
-                    "subscriptionId": "${{ steps.create-sub.outputs.subscription_id }}",
+                    "tenantId": "$zekt{{ steps.create-sub.outputs.tenant_id }}",
+                    "subscriptionId": "$zekt{{ steps.create-sub.outputs.subscription_id }}",
                     "region": "${{ inputs.region }}",
                     "name": "${{ inputs.name }}",
                     "environment": "${{ inputs.environment }}",
-                    "resourceGroupName": "${{ steps.create-resourcegroup.outputs.resource_group_name }}",
+                    "resourceGroupName": "$zekt{{ steps.create-resourcegroup.outputs.resource_group_name }}",
                     "tags": "department=${{ inputs.tag_department }} contact=${{ inputs.tag_contact }} contact_email=${{ inputs.tag_contact_email }}"
                   }
                 }

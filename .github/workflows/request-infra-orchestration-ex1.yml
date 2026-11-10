@@ -70,7 +70,7 @@ jobs:
                   "depends_on": ["create-on-prem-ns-here"],
                   "input": {
                     "name": "${{ inputs.name }}",
-                    "k8namespaceId": "${{ steps.create-on-prem-ns-here.outputs.k8_namespace_id }}"
+                    "k8namespaceId": "$zekt{{ steps.create-on-prem-ns-here.outputs.k8-namespace-guid }}"
                   }
                 },
                 {
