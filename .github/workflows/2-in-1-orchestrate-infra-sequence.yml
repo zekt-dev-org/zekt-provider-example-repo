@@ -95,7 +95,7 @@ jobs:
                     "region": "${{ inputs.region }}",
                     "name": "${{ inputs.name }}",
                     "environment": "${{ inputs.environment }}",
-                    "resourceGroupName": "$zekt{{ steps.create-resourcegroup.outputs.resource_group_name }}",
+                    "resourceGroupName": "$zekt{{ steps.create-resourcegroup.outputs.resourcegroup_name }}",
                     "tags": "department=${{ inputs.tag_department }} contact=${{ inputs.tag_contact }} contact_email=${{ inputs.tag_contact_email }}"
                   }
                 },
@@ -109,7 +109,7 @@ jobs:
                     "subscriptionId": "$zekt{{ steps.create-sub.outputs.subscription_id }}",
                     "region": "${{ inputs.region }}",
                     "name": "${{ inputs.name }}",
-                    "resourceGroupName": "$zekt{{ steps.create-resourcegroup.outputs.resource_group_name }}",
+                    "resourceGroupName": "$zekt{{ steps.create-resourcegroup.outputs.resourcegroup_name }}",
                     "tags": "department=${{ inputs.tag_department }} contact=${{ inputs.tag_contact }} contact_email=${{ inputs.tag_contact_email }}"
                   }
                 }
@@ -126,7 +126,7 @@ jobs:
           $tenantId       = '${{ steps.orch-1.outputs.step_create-sub_outputs_tenant_id }}'
 
           # --- Outputs from create-resourcegroup ---
-          $resourceGroup  = '${{ steps.orch-1.outputs.step_create-resourcegroup_outputs_resource_group_name }}'
+          $resourceGroup  = '${{ steps.orch-1.outputs.step_create-resourcegroup_outputs_resourcegroup_name }}'
 
           # --- Outputs from create-keyvault ---
           $keyvaultName   = '${{ steps.orch-1.outputs.step_create-keyvault_outputs_keyvault_name }}'

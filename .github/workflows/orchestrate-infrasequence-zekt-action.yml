@@ -95,7 +95,7 @@ jobs:
                     "region": "${{ inputs.region }}",
                     "name": "${{ inputs.name }}",
                     "environment": "${{ inputs.environment }}",
-                    "resourceGroupName": "$zekt{{ steps.create-resourcegroup.outputs.resource_group_name }}",
+                    "resourceGroupName": "$zekt{{ steps.create-resourcegroup.outputs.resourcegroup_name }}",
                     "tags": "department=${{ inputs.tag_department }} contact=${{ inputs.tag_contact }} contact_email=${{ inputs.tag_contact_email }}"
                   }
                 }
